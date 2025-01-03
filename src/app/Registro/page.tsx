@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword, AuthError, updateProfile } from "firebase/auth";
@@ -162,12 +163,12 @@ export default function RegistroPage() {
         </form>
 
         <div className="text-center mt-4">
-          <p>
-            ¿Ya tienes una cuenta?{" "}
-            <a href="/" className="text-blue-600 hover:underline">
-              Inicia sesión aquí
-            </a>
-          </p>
+        <p>
+        ¿Ya tienes una cuenta?{" "}
+        <Link href="/" className="text-blue-600 hover:underline">
+          Inicia sesión aquí
+        </Link>
+      </p>
         </div>
       </div>
     </div>

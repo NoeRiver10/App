@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/lib/firebaseConfig";
@@ -114,12 +115,12 @@ export default function RecuperacionContraPage() {
 
         {/* Enlace para volver al inicio de sesión */}
         <div className="text-center mt-4">
-          <p>
-            ¿Recordaste tu contraseña?{" "}
-            <a href="/" className="text-blue-600 hover:underline">
-              Inicia sesión aquí
-            </a>
-          </p>
+        <p>
+          ¿Recordaste tu contraseña?{" "}
+          <Link href="/" className="text-blue-600 hover:underline">
+            Inicia sesión aquí
+          </Link>
+        </p>
         </div>
       </div>
     </div>
