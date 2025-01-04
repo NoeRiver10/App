@@ -76,12 +76,12 @@ const InformacionPage: React.FC = () => {
           </div>
         </div>
         <div className="flex justify-between items-center mt-8">
-          <button className="bg-blue-500 text-white px-6 py-2 rounded-lg shadow-md hover:bg-blue-600 transition">
+          <button className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:from-blue-600 hover:to-blue-700 hover:shadow-lg transition transform hover:scale-105">
             Guardar Información
           </button>
           <Link
             href="/Nom25/Reconocimiento"
-            className="bg-green-500 text-white px-6 py-2 rounded-lg shadow-md hover:bg-green-600 transition"
+            className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:from-green-600 hover:to-green-700 hover:shadow-lg transition transform hover:scale-105"
           >
             Ir a Reconocimiento
           </Link>

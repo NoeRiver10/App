@@ -179,7 +179,7 @@ export default function MedicionesPage() {
           <ResumenMedicion />
           <button
             onClick={() => setShowResumen(false)}
-            className="bg-blue-600 text-white p-3 rounded-md mt-4"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:from-blue-600 hover:to-blue-700 hover:shadow-lg transition transform hover:scale-105"
           >
             Volver a Mediciones
           </button>

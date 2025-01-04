@@ -226,6 +226,13 @@ export default function ReconocimientoPage() {
               Eliminar Área
             </button>
           )}
+          <button
+          type="button"
+          onClick={() => router.push("/Nom25/InfoEmpresa")}
+          className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-6 py-3 rounded-lg shadow-md hover:from-yellow-600 hover:to-yellow-700 hover:shadow-lg transition transform hover:scale-105"
+        >
+          Ir a Información General
+        </button>
         </div>          
         </>
       )}

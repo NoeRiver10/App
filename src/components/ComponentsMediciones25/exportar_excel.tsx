@@ -163,7 +163,7 @@ const ExportarDatos: React.FC<ExportarDatosProps> = ({ areas }) => {
     <button
       type="button"
       onClick={exportarDatos}
-      className="bg-green-600 text-white p-3 rounded-md mb-8 hover:bg-green-700 transition-colors"
+      className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:from-green-600 hover:to-green-700 hover:shadow-lg transition transform hover:scale-105"
     >
       Exportar a Excel
     </button>
