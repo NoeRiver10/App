@@ -20,6 +20,20 @@ export default function HomePage() {
     }
   }, [isAuthenticated, router]);
 
+  useEffect(() => {
+    // Registrar el Service Worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((registration) => {
+          console.log("Service Worker registrado:", registration);
+        })
+        .catch((error) => {
+          console.error("Error al registrar el Service Worker:", error);
+        });
+    }
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -45,7 +59,9 @@ export default function HomePage() {
         const errorMessage = getFirebaseErrorMessage(err.code);
         setError(errorMessage);
       } else {
-        setError("Ocurrió un problema inesperado. Revisa la consola para más detalles.");
+        setError(
+          "Ocurrió un problema inesperado. Revisa la consola para más detalles."
+        );
         console.error("Error inesperado:", err);
       }
     } finally {
@@ -92,11 +108,9 @@ export default function HomePage() {
             width={120}
             height={120}
             className="mb-4"
-            style={{ width: 'auto', height: 'auto' }}
+            style={{ width: "auto", height: "auto" }}
           />
-          <h1 className="text-2xl font-bold text-gray-800">
-            LICTUS S.A. DE C.V.
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-800">LICTUS S.A. DE C.V.</h1>
           <p className="text-gray-600 text-center">
             Soluciones en Seguridad y Salud en el Trabajo
           </p>
@@ -104,9 +118,7 @@ export default function HomePage() {
 
         {/* Mensaje de error */}
         {error && (
-          <div className="bg-red-100 text-red-700 p-3 rounded-md mb-4">
-            {error}
-          </div>
+          <div className="bg-red-100 text-red-700 p-3 rounded-md mb-4">{error}</div>
         )}
 
         {/* Formulario */}
