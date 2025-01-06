@@ -103,7 +103,7 @@ export default function HomePage() {
         {/* Logo y encabezado central */}
         <div className="flex flex-col items-center mb-6">
           <Image
-            src="/lictus-logo-1.png"
+            src="/icons/lictus-logo-1.png"
             alt="Lictus Logo Central"
             width={120}
             height={120}
