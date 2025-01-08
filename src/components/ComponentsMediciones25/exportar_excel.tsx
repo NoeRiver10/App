@@ -23,11 +23,14 @@ interface Puesto {
   nombrePuesto: string;
   puntos: Punto[];
 }
-
 interface Area {
   nombreArea: string;
+  identificacionData?: {
+    areaIluminada: string;
+  };
   puestosData: Puesto[];
 }
+
 
 interface ExportarDatosProps {
   areas: Area[];
@@ -110,7 +113,7 @@ const ExportarDatos: React.FC<ExportarDatosProps> = ({ areas }) => {
         area.puestosData.forEach((puesto) => {
           puesto.puntos.forEach((punto) => {
             const fila = [
-              "", "00-ene-00", punto.departamento, area.nombreArea, puesto.nombrePuesto,
+              "", "00-ene-00", punto.departamento, area.identificacionData?.areaIluminada || area.nombreArea, puesto.nombrePuesto,
               punto.identificacion, punto.planoTrabajo, punto.nivelIluminacion, // "Tarea o actividad" recibe "Nivel de iluminación"
               punto.tipoIluminacion, "", "", // "Observaciones" y "Rango" vacíos
             ];

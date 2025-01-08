@@ -105,6 +105,9 @@ const ResumenPuntos: React.FC<ResumenPuntosProps> = ({ areas, onEditPunto, onDel
                         <strong>Área:</strong> {area.identificacionData.areaIluminada || area.nombreArea}
                       </p>
                       <p>
+                        <strong>Identificación:</strong> {punto.identificacion}
+                      </p>
+                      <p>
                         <strong>Departamento:</strong> {punto.departamento}
                       </p>
                       <p>

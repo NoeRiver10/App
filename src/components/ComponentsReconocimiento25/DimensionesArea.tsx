@@ -13,13 +13,14 @@ interface DimensionesAreaProps {
     ancho: string;
     indiceArea: number;
   };
-  setData: React.Dispatch<React.SetStateAction<{
+  setDataAction: React.Dispatch<React.SetStateAction<{
     altura: string;
     largo: string;
     ancho: string;
     indiceArea: number;
   }>>;
 }
+
 
 const calculateIndiceArea = (altura: string, largo: string, ancho: string): number => {
   const alturaParsed = parseFloat(altura) || 0;
@@ -46,23 +47,23 @@ const calculateMaxAreas = (indiceArea: number): number => {
   return 30;
 };
 
-export default function DimensionesArea({ data, setData }: DimensionesAreaProps) {
+export default function DimensionesArea({ data, setDataAction }: DimensionesAreaProps) {
   const handleChange = useHandleChange<{
     altura: string;
     largo: string;
     ancho: string;
     indiceArea: number;
-  }>(setData);
+  }>(setDataAction);
 
   useEffect(() => {
     const calculatedIC = calculateIndiceArea(data.altura, data.largo, data.ancho);
     if (calculatedIC !== data.indiceArea) {
-      setData((prevData) => ({
+      setDataAction((prevData) => ({
         ...prevData,
         indiceArea: calculatedIC,
       }));
     }
-  }, [data.altura, data.largo, data.ancho, data.indiceArea, setData]);
+  }, [data.altura, data.largo, data.ancho, data.indiceArea, setDataAction]);
 
   return (
     <div className="bg-white p-8 rounded-lg shadow-lg mb-8">

@@ -162,11 +162,11 @@ export default function ReconocimientoPage() {
                   }
                 />
                 <DimensionesArea
-                  data={areas[currentAreaIndex].dimensionesData}
-                  setData={(data) =>
-                    actualizarArea(currentAreaIndex, "dimensionesData", data)
-                  }
-                />
+                data={areas[currentAreaIndex].dimensionesData}
+                setDataAction={(data) =>
+                  actualizarArea(currentAreaIndex, "dimensionesData", data)
+                }
+              />
                 <Luminarias
                   data={areas[currentAreaIndex].luminariasData}
                   setData={(data) =>

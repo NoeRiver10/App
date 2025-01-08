@@ -39,6 +39,20 @@ interface ResumenAreasProps {
   }[];
 }
 
+const calculateMinAreas = (indiceArea: number): number => {
+  if (indiceArea < 1) return 4;
+  if (indiceArea < 2) return 9;
+  if (indiceArea < 3) return 16;
+  return 25;
+};
+
+const calculateMaxAreas = (indiceArea: number): number => {
+  if (indiceArea < 1) return 6;
+  if (indiceArea < 2) return 12;
+  if (indiceArea < 3) return 20;
+  return 30;
+};
+
 const ResumenAreas: React.FC<ResumenAreasProps> = ({ areas }) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
@@ -53,7 +67,10 @@ const ResumenAreas: React.FC<ResumenAreasProps> = ({ areas }) => {
       </h1>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {areas.map((area, index) => (
-          <div key={area.idArea} className="bg-gradient-to-r from-indigo-100 to-blue-100 rounded-lg shadow-lg overflow-hidden border-l-4 border-blue-500">
+          <div
+            key={area.idArea}
+            className="bg-gradient-to-r from-indigo-100 to-blue-100 rounded-lg shadow-lg overflow-hidden border-l-4 border-blue-500"
+          >
             <button
               onClick={() => toggleExpand(index)}
               className="w-full p-4 text-left flex justify-between items-center focus:outline-none"
@@ -80,6 +97,8 @@ const ResumenAreas: React.FC<ResumenAreasProps> = ({ areas }) => {
                   <p>Largo: {area.dimensionesData.largo} m</p>
                   <p>Ancho: {area.dimensionesData.ancho} m</p>
                   <p>Índice de Área: {area.dimensionesData.indiceArea.toFixed(2)}</p>
+                  <p>Mínimo de Áreas: {calculateMinAreas(area.dimensionesData.indiceArea)}</p>
+                  <p>Máximo de Áreas: {calculateMaxAreas(area.dimensionesData.indiceArea)}</p>
                 </div>
 
                 {/* Luminarias */}
