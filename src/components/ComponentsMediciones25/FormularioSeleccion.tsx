@@ -1,13 +1,18 @@
-import { Area } from '@/app/context/context25/areascontext';
+import { Area } from "@/app/context/context25/areascontext";
+
 const FormularioSeleccion: React.FC<{
-    formData: {
-      selectedArea: string;
-      selectedPuesto: string;
-    };
-    updateField: (field: "selectedArea" | "selectedPuesto", value: string) => void;
-    areas: Area[];
-    puestosTrabajo: string[];
-  }> = ({ formData, updateField, areas, puestosTrabajo }) => (
+  formData: {
+    selectedArea: string;
+    selectedPuesto: string;
+  };
+  updateField: (field: "selectedArea" | "selectedPuesto", value: string) => void;
+  areas: Area[];
+  puestosTrabajo: string[];
+}> = ({ formData, updateField, areas, puestosTrabajo }) => {
+  console.log("Área seleccionada:", formData.selectedArea);
+  console.log("Puestos disponibles:", puestosTrabajo);
+
+  return (
     <div className="flex flex-col space-y-4 mb-8">
       <select
         value={formData.selectedArea}
@@ -27,7 +32,9 @@ const FormularioSeleccion: React.FC<{
         value={formData.selectedPuesto}
         onChange={(e) => updateField("selectedPuesto", e.target.value)}
         disabled={!formData.selectedArea}
-        className="p-3 border border-gray-300 rounded-md"
+        className={`p-3 border border-gray-300 rounded-md ${
+          !formData.selectedArea ? "bg-gray-200 cursor-not-allowed" : ""
+        }`}
       >
         <option value="" disabled>
           Seleccione un Puesto
@@ -40,6 +47,6 @@ const FormularioSeleccion: React.FC<{
       </select>
     </div>
   );
-  
-  export default FormularioSeleccion;
-  
+};
+
+export default FormularioSeleccion;
