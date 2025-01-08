@@ -157,7 +157,7 @@ export default function ReconocimientoPage() {
                 </h2>
                 <IdentificacionArea
                   data={areas[currentAreaIndex].identificacionData}
-                  setData={(data) =>
+                  setDataAction={(data) =>
                     actualizarArea(currentAreaIndex, "identificacionData", data)
                   }
                 />

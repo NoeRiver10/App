@@ -25,6 +25,9 @@ interface Puesto {
 interface Area {
   idArea: number;
   nombreArea: string;
+  identificacionData: {
+    areaIluminada: string;
+  };
   puestosData: Puesto[];
 }
 
@@ -64,17 +67,22 @@ const ResumenPuntos: React.FC<ResumenPuntosProps> = ({ areas, onEditPunto, onDel
                 onClick={() => toggleExpand(areaIndex, puestoIndex, puntoIndex)}
               >
                 <span className="text-2xl font-bold text-gray-700">
-                  Punto {punto.numeroPunto} - Área {area.nombreArea}
+                  Punto {punto.numeroPunto} - Área {area.identificacionData.areaIluminada || area.nombreArea}
                 </span>
-                <div className="flex space-x-2">
+                <div className="flex items-center space-x-12">
                   <div
                     className="text-red-500 hover:text-red-700 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onDeletePunto(areaIndex, puestoIndex, puntoIndex);
+                      const confirmDelete = window.confirm(
+                        `¿Estás seguro de que deseas borrar el Punto ${punto.numeroPunto} del Área ${area.nombreArea}?`
+                      );
+                      if (confirmDelete) {
+                        onDeletePunto(areaIndex, puestoIndex, puntoIndex);
+                      }
                     }}
                   >
-                    <FiTrash2 />
+                    <FiTrash2 className="text-2xl" />
                   </div>
                   <div
                     className="text-green-500 hover:text-green-700 cursor-pointer"
@@ -83,7 +91,7 @@ const ResumenPuntos: React.FC<ResumenPuntosProps> = ({ areas, onEditPunto, onDel
                       onEditPunto(areaIndex, puestoIndex, puntoIndex);
                     }}
                   >
-                    <FiEdit />
+                    <FiEdit className="text-2xl" />
                   </div>
                 </div>
               </div>
@@ -94,7 +102,7 @@ const ResumenPuntos: React.FC<ResumenPuntosProps> = ({ areas, onEditPunto, onDel
                     <div className="mb-4">
                       <h3 className="text-lg font-semibold text-gray-800 mb-2">Detalles del Punto:</h3>
                       <p>
-                        <strong>Área:</strong> {area.nombreArea}
+                        <strong>Área:</strong> {area.identificacionData.areaIluminada || area.nombreArea}
                       </p>
                       <p>
                         <strong>Departamento:</strong> {punto.departamento}
@@ -109,7 +117,6 @@ const ResumenPuntos: React.FC<ResumenPuntosProps> = ({ areas, onEditPunto, onDel
                         <strong>Nivel de Iluminación:</strong> {punto.nivelIluminacion}
                       </p>
                     </div>
-
                     <div className="mb-4 overflow-x-auto">
                       <h3 className="text-lg font-semibold text-gray-800 mb-2">Mediciones:</h3>
                       {punto.mediciones.length > 0 ? (

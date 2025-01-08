@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { useHandleChange } from '@/app/hook/useHandleChange';
-
+import { useHandleChange } from "@/app/hook/useHandleChange";
 
 interface IdentificacionData {
   idArea: string;
@@ -12,12 +11,12 @@ interface IdentificacionData {
 
 export default function IdentificacionArea({
   data,
-  setData,
+  setDataAction,
 }: {
   data?: IdentificacionData;
-  setData: React.Dispatch<React.SetStateAction<IdentificacionData>>;
+  setDataAction: React.Dispatch<React.SetStateAction<IdentificacionData>>;
 }) {
-  const handleChange = useHandleChange<IdentificacionData>(setData);
+  const handleChange = useHandleChange<IdentificacionData>(setDataAction);
 
   return (
     <div className="bg-white p-8 rounded-lg shadow-lg mb-8">
