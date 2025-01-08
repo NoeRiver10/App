@@ -5,7 +5,6 @@ const CACHE_NAME = "app1.0-cache-v5"; // Incrementa este valor para actualizar l
 const urlsToCache = [
   "/", // Página principal
   "/manifest.json", // Manifesto de la aplicación
-  "/favicon.ico", // Ícono de la aplicación
   "/icons/lictus-logo-1-192x192.png", // Íconos
   "/icons/lictus-logo-1-512x512.png",
   "/offline.html", // Página de respaldo para mostrar cuando no hay conexión

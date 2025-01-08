@@ -38,8 +38,10 @@ export default function MedicionesPage() {
   // Calcular puestos de trabajo dinámicamente
   const puestosTrabajo = useMemo(() => {
     const area = areas.find((area) => area.idArea.toString() === selectedArea);
+    console.log("Área encontrada para puestos:", area);
     return area?.puestosData.map((puesto) => puesto.nombrePuesto) || [];
   }, [selectedArea, areas]);
+  
 
   // Inicializar contador de puntos
   useEffect(() => {
@@ -64,101 +66,35 @@ export default function MedicionesPage() {
 
   // Función para guardar datos
   const handleGuardar = () => {
-    // Validar que se haya seleccionado un área y un puesto
-    if (!selectedArea || !selectedPuesto) {
-      alert("Por favor, seleccione un área y un puesto antes de guardar.");
-      return;
-    }
-  
-    // Validar que existan mediciones
-    if (!medicionesData || medicionesData.length === 0) {
-      alert("No hay datos de mediciones para guardar.");
-      console.error("MedicionesData vacío o no definido:", medicionesData);
-      return;
-    }
-  
-    // Crear el nuevo punto con la información actual
-    const nuevoPunto = {
-      numeroPunto: globalPointCounter,
-      identificacion,
-      departamento,
-      planoTrabajo,
-      nivelIluminacion,
-      tipoIluminacion,
-      mediciones: medicionesData, // Agregamos las mediciones aquí
-    };
-  
-    console.log("=== Iniciando guardado ===");
-    console.log("Área seleccionada (idArea):", selectedArea);
-    console.log("Puesto seleccionado (nombrePuesto):", selectedPuesto);
-    console.log("Nuevo punto a guardar:", nuevoPunto);
-  
-    // Verificar si el área existe en el estado
-    const areaSeleccionada = areas.find(
-      (area) => area.idArea.toString() === selectedArea
-    );
-  
-    if (!areaSeleccionada) {
-      alert("El área seleccionada no existe.");
-      console.error("Área no encontrada:", selectedArea);
-      return;
-    }
-  
-    console.log("Área encontrada:", areaSeleccionada);
-  
-    // Normalizar nombres para comparación
-    const normalizedPuesto = selectedPuesto.trim().toLowerCase();
-  
-    // Verificar si el puesto existe en el área seleccionada
-    const puestoSeleccionado = areaSeleccionada.puestosData.find(
-      (puesto) => puesto.nombrePuesto.trim().toLowerCase() === normalizedPuesto
-    );
-  
-    console.log("Puestos disponibles en el área:", areaSeleccionada.puestosData);
-  
-    if (!puestoSeleccionado) {
-      alert("El puesto seleccionado no existe en el área.");
-      console.error(
-        `Puesto "${selectedPuesto}" no encontrado en el área:`,
-        areaSeleccionada
-      );
-      return;
-    }
-  
-    console.log("Puesto encontrado:", puestoSeleccionado);
-  
-    // Actualizar el puesto con el nuevo punto
-    const updatedPuestos = areaSeleccionada.puestosData.map((puesto) => {
-      if (puesto.nombrePuesto.trim().toLowerCase() === normalizedPuesto) {
-        console.log(`Agregando punto al puesto: ${puesto.nombrePuesto}`);
-        return {
-          ...puesto,
-          puntos: [...puesto.puntos, nuevoPunto], // Agregar el nuevo punto con las mediciones
-        };
-      }
-      return puesto; // Mantener los demás puestos sin cambios
-    });
-  
-    console.log("Puestos actualizados:", updatedPuestos);
-  
-    // Actualizar el área seleccionada con los nuevos datos de puestos
     const updatedAreas = areas.map((area) => {
       if (area.idArea.toString() === selectedArea) {
-        return {
-          ...area,
-          puestosData: updatedPuestos,
-        };
+        const updatedPuestos = area.puestosData.map((puesto) => {
+          if (puesto.nombrePuesto === selectedPuesto) {
+            return {
+              ...puesto,
+              puntos: [
+                ...puesto.puntos,
+                {
+                  numeroPunto: globalPointCounter,
+                  identificacion,
+                  departamento,
+                  planoTrabajo,
+                  nivelIluminacion,
+                  tipoIluminacion,
+                  mediciones: medicionesData,
+                },
+              ],
+            };
+          }
+          return puesto;
+        });
+        return { ...area, puestosData: updatedPuestos };
       }
-      return area; // Mantener las demás áreas sin cambios
+      return area;
     });
-  
-    console.log("Áreas actualizadas:", updatedAreas);
-  
-    // Actualizar el estado y guardar en localStorage
+
     setAreas(updatedAreas);
     localStorage.setItem("areas", JSON.stringify(updatedAreas));
-  
-    console.log("Datos guardados en localStorage:", JSON.parse(localStorage.getItem("areas") || "[]"));
     alert("Datos guardados con éxito");
   };
   
@@ -255,19 +191,23 @@ export default function MedicionesPage() {
             Mediciones - Área: {selectedArea || "Sin Seleccionar"} - Departamento: {" "}
             {departamento || "Sin Seleccionar"} - Punto: {globalPointCounter}
           </h1>
-          
-            <FormularioSeleccion
-              formData={{
-                selectedArea,
-                selectedPuesto,
-              }}
-              updateField={(field: "selectedArea" | "selectedPuesto", value: string) => {
-                if (field === "selectedArea") setSelectedArea(value);
-                if (field === "selectedPuesto") setSelectedPuesto(value);
-              }}
-              areas={areas}
-              puestosTrabajo={puestosTrabajo}
-            />
+
+          <FormularioSeleccion
+            formData={{
+              selectedArea,
+              selectedPuesto,
+            }}
+            updateField={(field: "selectedArea" | "selectedPuesto", value: string) => {
+              if (field === "selectedArea") {
+                setSelectedArea(value);
+                setSelectedPuesto(""); // Reiniciar puesto seleccionado
+              }
+              if (field === "selectedPuesto") setSelectedPuesto(value);
+            }}
+            areas={areas}
+            puestosTrabajo={puestosTrabajo}
+          />
+
             <input
               type="text"
               value={departamento}

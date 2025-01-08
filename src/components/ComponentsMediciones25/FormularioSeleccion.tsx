@@ -9,7 +9,8 @@ const FormularioSeleccion: React.FC<{
   areas: Area[];
   puestosTrabajo: string[];
 }> = ({ formData, updateField, areas, puestosTrabajo }) => {
-  console.log("Área seleccionada:", formData.selectedArea);
+  console.log("Datos de áreas:", areas);
+  console.log("Área seleccionada (selectedArea):", formData.selectedArea);
   console.log("Puestos disponibles:", puestosTrabajo);
 
   return (
@@ -24,7 +25,7 @@ const FormularioSeleccion: React.FC<{
         </option>
         {areas.map((area) => (
           <option key={area.idArea} value={area.idArea}>
-            Área {area.idArea} - {area.identificacionData.areaIluminada || area.nombreArea}
+            Área {area.idArea} - {area.identificacionData?.areaIluminada || area.nombreArea}
           </option>
         ))}
       </select>

@@ -34,7 +34,7 @@ export default function RootLayout({
         {/* Theme Color */}
         <meta name="theme-color" content="#3e4eb8" />
         {/* Favicon */}
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icons/lictus-logo-1-192x192.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
