@@ -62,3 +62,4 @@ export interface IdentificacionData {
     puestosData: PuestoData[];
   }
   
+  export type ExcelRow = (string | number)[];
