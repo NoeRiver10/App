@@ -3,6 +3,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import ResumenArea from "./ResumenAreaExcel";
 import ResumenMediciones from "./ResumenMediciones";
+import ResumenPuestosExcel from "./ResumenPuestosExcel"; // Importamos la nueva hoja
 import { Area } from "@/app/types/areasTypes";
 
 interface ExportarExcelProps {
@@ -19,6 +20,9 @@ const ExportarExcel: React.FC<ExportarExcelProps> = ({ areas }) => {
 
       // Crear la hoja de Mediciones
       ResumenMediciones(workbook, areas);
+
+      // Crear la hoja de Resumen de Puestos
+      ResumenPuestosExcel(workbook,areas);
 
       // Exportar el archivo Excel
       const buffer = await workbook.xlsx.writeBuffer();

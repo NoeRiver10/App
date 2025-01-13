@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 interface MedicionProps {
   tipoMedicion: string;
@@ -27,6 +27,14 @@ interface MedicionProps {
   >;
 }
 
+interface Medicion {
+  hora: string;
+  trabajoE1: string;
+  trabajoE2: string;
+  paredesE1: string;
+  paredesE2: string;
+}
+
 const MedicionesGeneral: React.FC<MedicionProps> = ({
   tipoMedicion,
   numMediciones,
@@ -34,42 +42,75 @@ const MedicionesGeneral: React.FC<MedicionProps> = ({
   setMedicionesData,
   areaId,
   puestoIndex,
-}) => {
-  const [localData, setLocalData] = useState(medicionesData);
+}: MedicionProps) => {
+  const storageKey = `mediciones-area-${areaId}-puesto-${puestoIndex}`;
 
-  // Sincronizar el estado de localData con el número de mediciones dinámicamente
+  const loadDataFromStorage = useCallback((): Medicion[] => {
+    try {
+      const savedData = localStorage.getItem(storageKey);
+      return savedData ? JSON.parse(savedData) : medicionesData;
+    } catch (error) {
+      console.error("Error cargando datos desde localStorage:", error);
+      return medicionesData;
+    }
+  }, [storageKey, medicionesData]);
+
+  const saveDataToStorage = useCallback((data: Medicion[]) => {
+    try {
+      console.log("Guardando en localStorage:", data);
+      localStorage.setItem(storageKey, JSON.stringify(data));
+    } catch (error) {
+      console.error("Error guardando datos en localStorage:", error);
+    }
+  }, [storageKey]);
+
+  const [localData, setLocalData] = useState<Medicion[]>(() => loadDataFromStorage());
+
+  // Actualizar los datos locales cuando cambie el número de mediciones
   useEffect(() => {
-    const updatedData = Array.from({ length: numMediciones }, (_, index) => ({
-      hora: localData[index]?.hora || "",
-      trabajoE1: localData[index]?.trabajoE1 || "",
-      trabajoE2: localData[index]?.trabajoE2 || "",
-      paredesE1: localData[index]?.paredesE1 || "N/A",
-      paredesE2: localData[index]?.paredesE2 || "N/A",
-    }));
-    if (JSON.stringify(updatedData) !== JSON.stringify(localData)) {
+    if (localData.length !== numMediciones) {
+      const updatedData = Array.from({ length: numMediciones }, (_, index) => ({
+        hora: localData[index]?.hora || "",
+        trabajoE1: localData[index]?.trabajoE1 || "",
+        trabajoE2: localData[index]?.trabajoE2 || "",
+        paredesE1: localData[index]?.paredesE1 || "",
+        paredesE2: localData[index]?.paredesE2 || "",
+      }));
       setLocalData(updatedData);
     }
-  }, [numMediciones, tipoMedicion, localData]);
-  
-  // Guardar datos en localStorage al cambiar localData
+  }, [numMediciones, localData]);
+
+  // Guardar datos en localStorage cuando localData cambie
   useEffect(() => {
-    localStorage.setItem(
-      `mediciones-area-${areaId}-puesto-${puestoIndex}`,
-      JSON.stringify(localData)
-    );
-    setMedicionesData(localData); // Actualizar el estado global
-  }, [localData, areaId, puestoIndex, setMedicionesData]);
+    saveDataToStorage(localData);
+    setMedicionesData(localData);
+  }, [localData, saveDataToStorage, setMedicionesData]);
 
   // Manejar cambios en los inputs
   const handleInputChange = (
     index: number,
-    field: keyof typeof localData[0],
+    field: keyof Medicion,
     value: string
   ) => {
-    const updatedData = [...localData];
-    updatedData[index] = { ...updatedData[index], [field]: value };
-    setLocalData(updatedData);
+    setLocalData((prevData) => {
+      const updatedData = [...prevData];
+      updatedData[index] = { ...updatedData[index], [field]: value };
+      return updatedData;
+    });
   };
+
+  // Detectar cambios en localStorage (por otras pestañas o usuarios)
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === storageKey) {
+        console.log("Datos modificados en otra pestaña. Cargando...");
+        const updatedData = loadDataFromStorage();
+        setLocalData(updatedData);
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [storageKey, loadDataFromStorage]);
 
   return (
     <div className="mb-8">
@@ -104,6 +145,7 @@ const MedicionesGeneral: React.FC<MedicionProps> = ({
                       handleInputChange(index, "hora", e.target.value)
                     }
                     className="w-full p-2 border rounded-md text-xs sm:text-sm"
+                    step="60"
                   />
                 </td>
                 <td className="border p-3">
@@ -137,7 +179,6 @@ const MedicionesGeneral: React.FC<MedicionProps> = ({
                       handleInputChange(index, "paredesE1", e.target.value)
                     }
                     className="w-full p-2 border rounded-md text-xs sm:text-sm"
-                    placeholder="N/A"
                   />
                 </td>
                 <td className="border p-3">
@@ -149,7 +190,6 @@ const MedicionesGeneral: React.FC<MedicionProps> = ({
                       handleInputChange(index, "paredesE2", e.target.value)
                     }
                     className="w-full p-2 border rounded-md text-xs sm:text-sm"
-                    placeholder="N/A"
                   />
                 </td>
               </tr>

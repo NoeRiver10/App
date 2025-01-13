@@ -9,9 +9,6 @@ const FormularioSeleccion: React.FC<{
   areas: Area[];
   puestosTrabajo: string[];
 }> = ({ formData, updateField, areas, puestosTrabajo }) => {
-  console.log("Datos de áreas:", areas);
-  console.log("Área seleccionada (selectedArea):", formData.selectedArea);
-  console.log("Puestos disponibles:", puestosTrabajo);
 
   return (
     <div className="flex flex-col space-y-4 mb-8">
