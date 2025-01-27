@@ -1,13 +1,12 @@
 "use client";
 
-import { FaTrash } from 'react-icons/fa';
-import { PuestoData as Puesto } from '@/app/context/context25/areascontext';
+import { FaTrash } from "react-icons/fa";
+import { PuestoData as Puesto } from "@/app/context/context25/areascontext";
 
 interface PuestosProps {
   puestos: Puesto[];
-  setPuestos: React.Dispatch<React.SetStateAction<Puesto[]>>;
+  setPuestosAction: React.Dispatch<React.SetStateAction<Puesto[]>>;
 }
-
 const nivelIluminacionOptions: Record<number, { visualTask: string; workArea: string; }> = {
   20: {
     visualTask: 'En exteriores: distinguir el área de tránsito, desplazarse caminando, vigilancia, movimiento de vehículos.',
@@ -47,27 +46,47 @@ const nivelIluminacionOptions: Record<number, { visualTask: string; workArea: st
   }
 };
 
-export default function Puestos({ puestos, setPuestos }: PuestosProps) {
-  // Función para manejar cambios en los campos individuales
-  const handleChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+
+export default function Puestos({ puestos, setPuestosAction }: PuestosProps) {
+  // Manejar cambios en los inputs
+  const handleChange = (
+    index: number,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
-    setPuestos((prevPuestos) => {
+
+    setPuestosAction((prevPuestos) => {
       const updatedPuestos = [...prevPuestos];
+      const nivelSeleccionado =
+        name === "nivelSeleccionado" && value !== ""
+          ? parseInt(value, 10)
+          : undefined;
+
+      const iluminacionInfo = nivelSeleccionado
+        ? nivelIluminacionOptions[nivelSeleccionado]
+        : null;
+
       updatedPuestos[index] = {
         ...updatedPuestos[index],
-        [name]: name === "numTrabajadores"
-          ? Math.max(0, parseInt(value, 10) || 0) // Garantizar que no se obtenga NaN
-          : name === "nivelSeleccionado"
-          ? (value !== "" ? parseInt(value, 10) : undefined) // Asegurar que sea siempre un número o `undefined`
-          : value,
+        [name]:
+          name === "numTrabajadores"
+            ? Math.max(0, parseInt(value, 10) || 0) // Asegurar número positivo
+            : name === "nivelSeleccionado"
+            ? nivelSeleccionado
+            : value || "", // Valor predeterminado
+        tareaVisual: iluminacionInfo?.visualTask || "",
+        areaTrabajo: iluminacionInfo?.workArea || "",
       };
+
       return updatedPuestos;
     });
   };
 
-  // Función para agregar un nuevo puesto
+  // Agregar un nuevo puesto
   const handleAddPuesto = () => {
-    setPuestos((prevPuestos) => [
+    setPuestosAction((prevPuestos) => [
       ...prevPuestos,
       {
         indice: prevPuestos.length + 1,
@@ -75,20 +94,23 @@ export default function Puestos({ puestos, setPuestos }: PuestosProps) {
         numTrabajadores: 0,
         descripcionActividades: "",
         nivelSeleccionado: undefined,
+        tareaVisual: "", // Inicializa la propiedad
+        areaTrabajo: "", // Inicializa la propiedad
         puntos: [],
       },
     ]);
   };
 
-  // Función para eliminar un puesto
+  // Eliminar un puesto
   const handleDeletePuesto = (index: number) => {
-    setPuestos((prevPuestos) =>
+    setPuestosAction((prevPuestos) =>
       prevPuestos
         .filter((_, i) => i !== index)
         .map((puesto, i) => ({ ...puesto, indice: i + 1 }))
     );
   };
 
+  // Obtener información de iluminación
   const getIluminacionInfo = (nivel: number | undefined) => {
     return nivel !== undefined ? nivelIluminacionOptions[nivel] : null;
   };
@@ -105,8 +127,10 @@ export default function Puestos({ puestos, setPuestos }: PuestosProps) {
             : data.nivelSeleccionado
         );
         return (
-          <div key={data.indice} className="space-y-6 mb-6 relative border-t border-gray-300 pt-4">
-            {/* Ícono para Eliminar Puesto */}
+          <div
+            key={data.indice}
+            className="space-y-6 mb-6 relative border-t border-gray-300 pt-4"
+          >
             {index > 0 && (
               <button
                 type="button"
@@ -118,65 +142,55 @@ export default function Puestos({ puestos, setPuestos }: PuestosProps) {
               </button>
             )}
 
-            {/* Índice del Puesto */}
             <div className="text-lg font-semibold text-gray-800 mb-2">
               <p>Puesto #{data.indice}</p>
             </div>
 
-            {/* Puesto del Trabajador */}
             <div>
-              <label htmlFor={`nombrePuesto-${index}`} className="block text-lg font-semibold text-gray-800 mb-2">
+              <label className="block text-lg font-semibold text-gray-800 mb-2">
                 Puesto del Trabajador:
               </label>
               <input
                 type="text"
-                id={`nombrePuesto-${index}`}
                 name="nombrePuesto"
-                value={data.nombrePuesto}
+                value={data.nombrePuesto || ""}
                 onChange={(e) => handleChange(index, e)}
                 className="w-full p-3 border border-gray-300 rounded-md"
                 placeholder="Ingrese el nombre del puesto del trabajador"
               />
             </div>
 
-            {/* Número de Trabajadores */}
             <div>
-              <label htmlFor={`numTrabajadores-${index}`} className="block text-lg font-semibold text-gray-800 mb-2">
+              <label className="block text-lg font-semibold text-gray-800 mb-2">
                 Número de Trabajadores:
               </label>
               <input
                 type="number"
-                id={`numTrabajadores-${index}`}
                 name="numTrabajadores"
-                value={data.numTrabajadores !== null && data.numTrabajadores !== undefined ? data.numTrabajadores.toString() : "0"} // Aseguramos que siempre tenga un valor válido
+                value={data.numTrabajadores ?? "0"}
                 onChange={(e) => handleChange(index, e)}
                 className="w-full p-3 border border-gray-300 rounded-md"
-                placeholder="Ingrese el número de trabajadores"
               />
             </div>
 
-            {/* Descripción de Actividades */}
             <div>
-              <label htmlFor={`descripcionActividades-${index}`} className="block text-lg font-semibold text-gray-800 mb-2">
+              <label className="block text-lg font-semibold text-gray-800 mb-2">
                 Descripción de Actividades:
               </label>
               <textarea
-                id={`descripcionActividades-${index}`}
                 name="descripcionActividades"
-                value={data.descripcionActividades}
+                value={data.descripcionActividades || ""}
                 onChange={(e) => handleChange(index, e)}
                 className="w-full p-3 border border-gray-300 rounded-md"
                 placeholder="Ingrese una descripción de las actividades"
               />
             </div>
 
-            {/* Nivel Mínimo de Iluminación (lux) */}
             <div>
-              <label htmlFor={`nivelSeleccionado-${index}`} className="block text-lg font-semibold text-gray-800 mb-2">
+              <label className="block text-lg font-semibold text-gray-800 mb-2">
                 Nivel Mínimo de Iluminación:
               </label>
               <select
-                id={`nivelSeleccionado-${index}`}
                 name="nivelSeleccionado"
                 value={data.nivelSeleccionado ?? ""}
                 onChange={(e) => handleChange(index, e)}
@@ -191,12 +205,15 @@ export default function Puestos({ puestos, setPuestos }: PuestosProps) {
               </select>
             </div>
 
-            {/* Tarea Visual del Puesto de Trabajo y Área de Trabajo */}
             {iluminacionInfo && (
               <div className="bg-gray-100 p-4 rounded-md">
-                <p className="text-lg font-semibold text-gray-800 mb-2">Tarea Visual:</p>
+                <p className="text-lg font-semibold text-gray-800 mb-2">
+                  Tarea Visual:
+                </p>
                 <p className="text-gray-700 mb-4">{iluminacionInfo.visualTask}</p>
-                <p className="text-lg font-semibold text-gray-800 mb-2">Área de Trabajo:</p>
+                <p className="text-lg font-semibold text-gray-800 mb-2">
+                  Área de Trabajo:
+                </p>
                 <p className="text-gray-700">{iluminacionInfo.workArea}</p>
               </div>
             )}
@@ -204,7 +221,6 @@ export default function Puestos({ puestos, setPuestos }: PuestosProps) {
         );
       })}
       <button
-        type="button"
         onClick={handleAddPuesto}
         className="w-full p-3 bg-blue-600 text-white rounded-md font-bold hover:bg-blue-700"
       >
@@ -213,3 +229,4 @@ export default function Puestos({ puestos, setPuestos }: PuestosProps) {
     </div>
   );
 }
+

@@ -3,7 +3,6 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 const ActionButtons: React.FC<{
   onGuardar: () => void;
   onAgregarPunto: () => void;
-  onSiguienteDepartamento: () => void;
   onBorrarDatos: () => void;
   navigateToPoint: (direction: "next" | "previous") => void;
   canNavigateNext: boolean;
@@ -13,7 +12,6 @@ const ActionButtons: React.FC<{
 }> = ({
   onGuardar,
   onAgregarPunto,
-  onSiguienteDepartamento,
   onBorrarDatos,
   navigateToPoint,
   canNavigateNext,
@@ -55,12 +53,6 @@ const ActionButtons: React.FC<{
       className="bg-gradient-to-r from-green-500 to-green-700 text-white px-6 py-3 rounded-lg shadow-md hover:from-green-600 hover:to-green-800 hover:shadow-lg text-sm"
     >
       Agregar Punto
-    </button>
-    <button
-      onClick={onSiguienteDepartamento}
-      className="bg-gradient-to-r from-purple-500 to-purple-700 text-white px-6 py-3 rounded-lg shadow-md hover:from-purple-600 hover:to-purple-800 hover:shadow-lg text-sm"
-    >
-      Siguiente Departamento
     </button>
     <button
       onClick={onShowResumen}

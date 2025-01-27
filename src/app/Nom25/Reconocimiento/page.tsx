@@ -181,7 +181,7 @@ export default function ReconocimientoPage() {
                 />
                 <Puestos
                   puestos={areas[currentAreaIndex].puestosData}
-                  setPuestos={(data) =>
+                  setPuestosAction={(data) =>
                     actualizarArea(currentAreaIndex, "puestosData", data)
                   }
                 />

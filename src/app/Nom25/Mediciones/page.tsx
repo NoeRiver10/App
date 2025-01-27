@@ -104,12 +104,7 @@ export default function MedicionesPage() {
     resetInputs();
   };
 
-  // Función para avanzar al siguiente departamento
-  const handleSiguienteDepartamento = () => {
-    setGlobalPointCounter((prev) => prev + 1);
-    setDepartamento("");
-    resetInputs();
-  };
+
 
   // Función para resetear inputs
   const resetInputs = () => {
@@ -276,7 +271,6 @@ export default function MedicionesPage() {
           <ActionButtons
             onGuardar={handleGuardar}
             onAgregarPunto={handleAgregarPunto}
-            onSiguienteDepartamento={handleSiguienteDepartamento}
             onBorrarDatos={borrarDatos}
             navigateToPoint={navigateToPoint}
             canNavigateNext={

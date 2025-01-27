@@ -52,6 +52,8 @@ export interface PuestoData {
   descripcionActividades: string;
   nivelSeleccionado?: number | string;
   puntos: Punto[];
+  tareaVisual?: string; // Nueva propiedad
+  areaTrabajo?: string; // Nueva propiedad
 }
 
 export interface Area {

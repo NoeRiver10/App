@@ -48,7 +48,7 @@ export interface IdentificacionData {
     nombrePuesto: string;
     numTrabajadores: number;
     descripcionActividades: string;
-    nivelSeleccionado?: number | string;
+    nivelSeleccionado?: number;
     puntos: Punto[];
   }
   
