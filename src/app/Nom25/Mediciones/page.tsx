@@ -1,70 +1,58 @@
+// app/page.tsx
 "use client";
-import { Area, Punto } from '@/app/context/context25/areascontext';
-import React, { useState, useEffect, useMemo } from "react";
-import { useAreas } from '@/app/context/context25/areascontext';
+import React, { useState } from "react";
+import { useAreas } from "@/app/context/context25/areascontext";
 import { useRouter } from "next/navigation";
-import MedicionesGeneral from '@/components/ComponentsMediciones25/medicionesGeneral';
-import ResumenMedicion from '@/components/ComponentsMediciones25/resumenMedicion';
-import FormularioSeleccion from '@/components/ComponentsMediciones25/FormularioSeleccion';
-import ActionButtons from '@/components/ComponentsMediciones25/ActionButtons';
-
-const NIVELES_ILUMINACION = [20, 50, 100, 200, 300, 500, 750, 1000, 2000];
-
-// Función reutilizable para inicializar datos de medición
-const createMedicionesData = (tipo: string) =>
-  Array.from({ length: tipo === "ARTIFICIAL" ? 1 : 4 }, () => ({
-    hora: "",
-    trabajoE1: "",
-    trabajoE2: "",
-    paredesE1: "N/A",
-    paredesE2: "N/A",
-  }));
+import { useMediciones } from "@/app/hook/useMediciones";
+import { useNavegacion } from "@/app/hook/useNavegacion";
+import { FormularioMediciones } from "@/components/ComponentsMediciones25/FormularioMediciones";
+import ResumenMedicion from "@/components/ComponentsMediciones25/resumenMedicion";
+import MedicionesGeneral from "@/components/ComponentsMediciones25/medicionesGeneral";
+import ActionButtons from "@/components/ComponentsMediciones25/ActionButtons";
 
 export default function MedicionesPage() {
   const { areas, setAreas } = useAreas();
   const router = useRouter();
-
-  const [selectedArea, setSelectedArea] = useState<string>("");
-  const [selectedPuesto, setSelectedPuesto] = useState<string>("");
-  const [identificacion, setIdentificacion] = useState<string>("");
-  const [departamento, setDepartamento] = useState<string>("");
-  const [planoTrabajo, setPlanoTrabajo] = useState<string>("");
-  const [nivelIluminacion, setNivelIluminacion] = useState<number | "">("");
-  const [tipoIluminacion, setTipoIluminacion] = useState<string>("");
-  const [globalPointCounter, setGlobalPointCounter] = useState<number>(1);
   const [showResumen, setShowResumen] = useState<boolean>(false);
-  const [medicionesData, setMedicionesData] = useState(createMedicionesData(""));
 
-  // Calcular puestos de trabajo dinámicamente
-  const puestosTrabajo = useMemo(() => {
-    const area = areas.find((area) => area.idArea.toString() === selectedArea);
-    console.log("Área encontrada para puestos:", area);
-    return area?.puestosData.map((puesto) => puesto.nombrePuesto) || [];
-  }, [selectedArea, areas]);
+  const {
+    selectedArea,
+    setSelectedArea,
+    selectedPuesto,
+    setSelectedPuesto,
+    identificacion,
+    setIdentificacion,
+    departamento,
+    setDepartamento,
+    planoTrabajo,
+    setPlanoTrabajo,
+    nivelIluminacion,
+    setNivelIluminacion,
+    tipoIluminacion,
+    setTipoIluminacion,
+    medicionesData,
+    setMedicionesData,
+    puestosTrabajo,
+    resetInputs,
+    NIVELES_ILUMINACION,
+    updatePointData, // Función para actualizar datos del punto
+  } = useMediciones(areas);
+
+  const {
+    globalPointCounter,
+    setGlobalPointCounter,
+    selectedPoint, // ✅ Agregar esta línea para obtener el punto actual
+    navigateToPoint,
+  } = useNavegacion(areas);
   
-
-  // Inicializar contador de puntos
-  useEffect(() => {
-    try {
-      const savedAreas: Area[] = JSON.parse(localStorage.getItem("areas") || "[]");
-      const lastPoint = savedAreas
-        .flatMap((area) => area.puestosData)
-        .flatMap((puesto) => puesto.puntos)
-        .pop();
-
-      setGlobalPointCounter(lastPoint ? lastPoint.numeroPunto + 1 : 1);
-    } catch (error) {
-      console.error("Error al cargar datos desde localStorage:", error);
-      setGlobalPointCounter(1);
+  // Función para manejar la navegación entre puntos
+  const handleNavigate = (direction: "next" | "previous") => {
+    const newPoint = navigateToPoint(direction);
+    if (newPoint) {
+      updatePointData(newPoint); // Actualizar el formulario con los datos del nuevo punto
     }
-  }, []);
+  };
 
-  // Actualizar datos de medición según tipo de iluminación
-  useEffect(() => {
-    setMedicionesData(createMedicionesData(tipoIluminacion));
-  }, [tipoIluminacion]);
-
-  // Función para guardar datos
   const handleGuardar = () => {
     const updatedAreas = areas.map((area) => {
       if (area.idArea.toString() === selectedArea) {
@@ -97,74 +85,17 @@ export default function MedicionesPage() {
     localStorage.setItem("areas", JSON.stringify(updatedAreas));
     alert("Datos guardados con éxito");
   };
-  
-  // Función para agregar un nuevo punto
+
   const handleAgregarPunto = () => {
     setGlobalPointCounter((prev) => prev + 1);
     resetInputs();
   };
 
-
-
-  // Función para resetear inputs
-  const resetInputs = () => {
-    setIdentificacion("");
-    setPlanoTrabajo("");
-    setNivelIluminacion("");
-    setTipoIluminacion("");
-    setMedicionesData(createMedicionesData(""));
-  };
-
-  // Función para borrar todos los datos
   const borrarDatos = () => {
     localStorage.removeItem("areas");
     setAreas([]);
     setGlobalPointCounter(1);
     alert("Datos eliminados con éxito");
-  };
-
-  const navigateToPoint = (direction: "next" | "previous") => {
-    // Obtener todos los puntos ordenados por número
-    const allPoints = areas
-      .flatMap((area) => area.puestosData)
-      .flatMap((puesto) => puesto.puntos)
-      .sort((a, b) => a.numeroPunto - b.numeroPunto);
-
-    if (allPoints.length === 0) {
-      alert("No hay puntos registrados.");
-      return;
-    }
-
-    // Buscar el índice del punto actual
-    const currentIndex = allPoints.findIndex(
-      (punto) => punto.numeroPunto === globalPointCounter
-    );
-
-    if (currentIndex === -1) {
-      alert("Punto actual no encontrado.");
-      return;
-    }
-
-    // Mover al siguiente o anterior punto
-    let newIndex = currentIndex;
-    if (direction === "next") {
-      newIndex = Math.min(currentIndex + 1, allPoints.length - 1);
-    } else if (direction === "previous") {
-      newIndex = Math.max(currentIndex - 1, 0);
-    }
-
-    // Actualizar los datos del punto seleccionado
-    updatePointData(allPoints[newIndex]);
-  };
-
-  const updatePointData = (point: Punto) => {
-    setGlobalPointCounter(point.numeroPunto);
-    setIdentificacion(point.identificacion);
-    setDepartamento(point.departamento);
-    setPlanoTrabajo(point.planoTrabajo);
-    setNivelIluminacion(point.nivelIluminacion);
-    setTipoIluminacion(point.tipoIluminacion);
-    setMedicionesData(point.mediciones || createMedicionesData(""));
   };
 
   return (
@@ -181,83 +112,26 @@ export default function MedicionesPage() {
         </>
       ) : (
         <>
-          <div className="flex flex-col space-y-4 mb-8">
-          <h1 className="text-4xl font-bold mb-8 text-blue-600 text-center">
-            Mediciones - Área: {selectedArea || "Sin Seleccionar"} - Departamento: {" "}
-            {departamento || "Sin Seleccionar"} - Punto: {globalPointCounter}
-          </h1>
-
-          <FormularioSeleccion
-            formData={{
-              selectedArea,
-              selectedPuesto,
-            }}
-            updateField={(field: "selectedArea" | "selectedPuesto", value: string) => {
-              if (field === "selectedArea") {
-                setSelectedArea(value);
-                setSelectedPuesto(""); // Reiniciar puesto seleccionado
-              }
-              if (field === "selectedPuesto") setSelectedPuesto(value);
-            }}
-            areas={areas}
+          <FormularioMediciones
+            selectedArea={selectedArea}
+            setSelectedArea={setSelectedArea}
+            selectedPuesto={selectedPuesto}
+            setSelectedPuesto={setSelectedPuesto}
+            departamento={departamento}
+            setDepartamento={setDepartamento}
+            identificacion={identificacion}
+            setIdentificacion={setIdentificacion}
+            planoTrabajo={planoTrabajo}
+            setPlanoTrabajo={setPlanoTrabajo}
+            nivelIluminacion={nivelIluminacion}
+            setNivelIluminacion={setNivelIluminacion}
+            tipoIluminacion={tipoIluminacion}
+            setTipoIluminacion={setTipoIluminacion}
             puestosTrabajo={puestosTrabajo}
+            areas={areas}
+            NIVELES_ILUMINACION={NIVELES_ILUMINACION}
+            selectedPoint={selectedPoint}
           />
-
-            <input
-              type="text"
-              value={departamento}
-              onChange={(e) => setDepartamento(e.target.value)}
-              placeholder="Departamento"
-              className="p-3 border border-gray-300 rounded-md"
-            />
-            <input
-              type="text"
-              value={identificacion}
-              onChange={(e) => setIdentificacion(e.target.value)}
-              placeholder="Identificación"
-              className="p-3 border border-gray-300 rounded-md"
-            />
-            <select
-              value={planoTrabajo}
-              onChange={(e) => setPlanoTrabajo(e.target.value)}
-              className="p-3 border border-gray-300 rounded-md"
-            >
-              <option value="" disabled>
-                Seleccione Plano de Trabajo
-              </option>
-              <option value="HORIZONTAL">Horizontal</option>
-              <option value="VERTICAL">Vertical</option>
-              <option value="OBLICUO">Oblicuo</option>
-            </select>
-            <select
-              value={nivelIluminacion}
-              onChange={(e) =>
-                setNivelIluminacion(Number(e.target.value) || "")
-              }
-              className="p-3 border border-gray-300 rounded-md"
-            >
-              <option value="" disabled>
-                Seleccione Nivel de Iluminación
-              </option>
-              {NIVELES_ILUMINACION.map((nivel) => (
-                <option key={nivel} value={nivel}>
-                  {nivel} lux
-                </option>
-              ))}
-            </select>
-            <select
-              value={tipoIluminacion}
-              onChange={(e) => setTipoIluminacion(e.target.value)}
-              className="p-3 border border-gray-300 rounded-md"
-            >
-              <option value="" disabled>
-                Seleccione Tipo de Iluminación
-              </option>
-              <option value="NATURAL">Natural</option>
-              <option value="ARTIFICIAL">Artificial</option>
-              <option value="COMBINADA">Combinada</option>
-            </select>
-          </div>
           {tipoIluminacion && (
             <MedicionesGeneral
               tipoMedicion={tipoIluminacion}
@@ -272,7 +146,7 @@ export default function MedicionesPage() {
             onGuardar={handleGuardar}
             onAgregarPunto={handleAgregarPunto}
             onBorrarDatos={borrarDatos}
-            navigateToPoint={navigateToPoint}
+            navigateToPoint={handleNavigate} // Pasar la función de navegación
             canNavigateNext={
               areas.flatMap((area) => area.puestosData).flatMap((puesto) => puesto.puntos).length >
               globalPointCounter

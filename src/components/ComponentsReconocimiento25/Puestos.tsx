@@ -1,7 +1,8 @@
 "use client";
 
 import { FaTrash } from "react-icons/fa";
-import { PuestoData as Puesto } from "@/app/context/context25/areascontext";
+import { PuestoData as Puesto } from "@/app/types/areasTypes";
+
 
 interface PuestosProps {
   puestos: Puesto[];

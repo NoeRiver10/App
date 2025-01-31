@@ -1,4 +1,5 @@
-import { Area } from "@/app/context/context25/areascontext";
+import { Area } from "@/app/types/areasTypes"; // Importa el tipo desde el archivo de tipos
+
 
 const FormularioSeleccion: React.FC<{
   formData: {

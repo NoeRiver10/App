@@ -48,9 +48,13 @@ export interface IdentificacionData {
     nombrePuesto: string;
     numTrabajadores: number;
     descripcionActividades: string;
-    nivelSeleccionado?: number;
+    nivelSeleccionado?: number | undefined;
     puntos: Punto[];
+    tareaVisual?: string; // Si ya lo agregaste
+    areaTrabajo?: string; // Agrega esta línea
   }
+  
+  
   
   export interface Area {
     idArea: number;

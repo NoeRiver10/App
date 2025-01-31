@@ -8,7 +8,9 @@ import Luminarias from "@/components/ComponentsReconocimiento25/Luminarias";
 import Percepcion from "@/components/ComponentsReconocimiento25/Percepcion";
 import Puestos from "@/components/ComponentsReconocimiento25/Puestos";
 import ResumenAreas from "@/components/ComponentsReconocimiento25/ResumenAreas";
-import { useAreas, Area } from "@/app/context/context25/areascontext"; // Importar el tipo Area
+import { Area } from "@/app/types/areasTypes";
+import { useAreas } from "@/app/context/context25/areascontext";
+
 
 export default function ReconocimientoPage() {
   const router = useRouter();
