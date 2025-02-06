@@ -1,74 +1,85 @@
 import React from "react";
-import FormularioSeleccion from "@/components/ComponentsMediciones25/FormularioSeleccion";
-import { Area, Punto } from "@/app/types/areasTypes";
 
 interface FormularioMedicionesProps {
   selectedArea: string;
   setSelectedArea: (value: string) => void;
   selectedPuesto: string;
   setSelectedPuesto: (value: string) => void;
-  departamento: string;
-  setDepartamento: (value: string) => void;
   identificacion: string;
   setIdentificacion: (value: string) => void;
+  departamento: string;
+  setDepartamento: (value: string) => void;
   planoTrabajo: string;
   setPlanoTrabajo: (value: string) => void;
   nivelIluminacion: number | "";
   setNivelIluminacion: (value: number | "") => void;
   tipoIluminacion: string;
   setTipoIluminacion: (value: string) => void;
+  areas: { 
+    idArea: number; 
+    nombreArea: string; 
+    identificacionData?: { areaIluminada?: string };
+  }[];
   puestosTrabajo: string[];
-  areas: Area[];
-  NIVELES_ILUMINACION: number[];
-  selectedPoint: Punto | null;
 }
 
-export const FormularioMediciones: React.FC<FormularioMedicionesProps> = ({
+const NIVELES_ILUMINACION = [20, 50, 100, 200, 300, 500, 750, 1000, 2000];
+
+const FormularioMediciones: React.FC<FormularioMedicionesProps> = ({
   selectedArea,
   setSelectedArea,
   selectedPuesto,
   setSelectedPuesto,
-  departamento,
-  setDepartamento,
   identificacion,
   setIdentificacion,
+  departamento,
+  setDepartamento,
   planoTrabajo,
   setPlanoTrabajo,
   nivelIluminacion,
   setNivelIluminacion,
   tipoIluminacion,
   setTipoIluminacion,
-  puestosTrabajo,
   areas,
-  NIVELES_ILUMINACION,
-  selectedPoint,
+  puestosTrabajo,
 }) => {
-  // 🔹 Buscar el área correspondiente según el `idArea`
-  const areaActual = areas.find((area) => area.idArea.toString() === selectedArea);
-
   return (
     <div className="flex flex-col space-y-4 mb-8">
-      <h1 className="text-4xl font-bold mb-8 text-blue-600 text-center">
-        {selectedPoint
-          ? `Punto ${selectedPoint.numeroPunto} - Área: ${areaActual?.identificacionData.areaIluminada || "No asignada"}`
-          : "Cargando..."}
-      </h1>
-
-      {/* Selección de Área y Puesto */}
-      <FormularioSeleccion
-        formData={{ selectedArea, selectedPuesto }}
-        updateField={(field, value) => {
-          if (field === "selectedArea") {
-            setSelectedArea(value);
-            setSelectedPuesto("");
-          }
-          if (field === "selectedPuesto") setSelectedPuesto(value);
+      {/* Selector de área con el área iluminada en cada opción */}
+      <select
+        value={selectedArea}
+        onChange={(e) => {
+          setSelectedArea(e.target.value);
+          setSelectedPuesto(""); // Reiniciar puesto al cambiar área
         }}
-        areas={areas}
-        puestosTrabajo={puestosTrabajo}
-      />
+        className="p-3 border border-gray-300 rounded-md"
+      >
+        <option value="" disabled>
+          Seleccione un área
+        </option>
+        {areas.map((area) => (
+          <option key={area.idArea} value={area.idArea.toString()}>
+            {area.nombreArea} - {area.identificacionData?.areaIluminada || "Sin información"}
+          </option>
+        ))}
+      </select>
 
-      {/* Campos de medición */}
+      <select
+        value={selectedPuesto}
+        onChange={(e) => setSelectedPuesto(e.target.value)}
+        className="p-3 border border-gray-300 rounded-md"
+        disabled={!selectedArea}
+      >
+        <option value="" disabled>
+          Seleccione un puesto
+        </option>
+        {puestosTrabajo.map((puesto, index) => (
+          <option key={index} value={puesto}>
+            {puesto}
+          </option>
+        ))}
+      </select>
+
       <input
         type="text"
         value={departamento}
@@ -76,6 +87,7 @@ export const FormularioMediciones: React.FC<FormularioMedicionesProps> = ({
         placeholder="Departamento"
         className="p-3 border border-gray-300 rounded-md"
       />
+
       <input
         type="text"
         value={identificacion}
@@ -83,6 +95,7 @@ export const FormularioMediciones: React.FC<FormularioMedicionesProps> = ({
         placeholder="Identificación"
         className="p-3 border border-gray-300 rounded-md"
       />
+
       <select
         value={planoTrabajo}
         onChange={(e) => setPlanoTrabajo(e.target.value)}
@@ -95,6 +108,7 @@ export const FormularioMediciones: React.FC<FormularioMedicionesProps> = ({
         <option value="VERTICAL">Vertical</option>
         <option value="OBLICUO">Oblicuo</option>
       </select>
+
       <select
         value={nivelIluminacion}
         onChange={(e) => setNivelIluminacion(Number(e.target.value) || "")}
@@ -109,6 +123,7 @@ export const FormularioMediciones: React.FC<FormularioMedicionesProps> = ({
           </option>
         ))}
       </select>
+
       <select
         value={tipoIluminacion}
         onChange={(e) => setTipoIluminacion(e.target.value)}
@@ -124,3 +139,5 @@ export const FormularioMediciones: React.FC<FormularioMedicionesProps> = ({
     </div>
   );
 };
+
+export default FormularioMediciones;

@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { Area } from "../../types/areasTypes"; // Ruta corregida
+import { createContext, useContext, useState, ReactNode } from "react";
+import { Area } from "../../types/areasTypes";
 
 interface AreasContextProps {
   areas: Area[];
@@ -20,28 +20,6 @@ export const useAreas = () => {
 
 export const AreasProvider = ({ children }: { children: ReactNode }) => {
   const [areas, setAreas] = useState<Area[]>([]);
-
-  useEffect(() => {
-    const storedAreas = localStorage.getItem("areas");
-    if (storedAreas) {
-      try {
-        const parsedAreas: Area[] = JSON.parse(storedAreas);
-        setAreas(parsedAreas);
-      } catch (error) {
-        console.error("Error al parsear las áreas almacenadas:", error);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (areas.length > 0) {
-      try {
-        localStorage.setItem("areas", JSON.stringify(areas));
-      } catch (error) {
-        console.error("Error al guardar áreas en localStorage:", error);
-      }
-    }
-  }, [areas]);
 
   return (
     <AreasContext.Provider value={{ areas, setAreas }}>
