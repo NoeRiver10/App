@@ -11,12 +11,11 @@ interface UseGuardarPuntoProps {
   nivelIluminacion: number | "";
   tipoIluminacion: string;
   medicionesData: MedicionesData[];
-  globalPointCounter: number;
-  setGlobalPointCounter: Dispatch<SetStateAction<number>>; // ✅ Agregado aquí
-  setAreas: Dispatch<SetStateAction<Area[]>>; // ✅ También debe estar aquí
+  globalPointCounter: number; // Mantiene la referencia actual
+  setTotalPuntos: Dispatch<SetStateAction<number>>; // Controla la numeración global
+  setAreas: Dispatch<SetStateAction<Area[]>>;
 }
 
-// 📌 Hook para manejar el guardado y edición de puntos
 export function useGuardarPunto({
   selectedArea,
   selectedPuesto,
@@ -27,6 +26,7 @@ export function useGuardarPunto({
   tipoIluminacion,
   medicionesData,
   globalPointCounter,
+  setTotalPuntos,
   setAreas,
 }: UseGuardarPuntoProps) {
   const { areas } = useGetAreas();
@@ -37,8 +37,29 @@ export function useGuardarPunto({
       return;
     }
 
+    // 📌 Obtener el número de punto más alto de todas las áreas
+    const maxPuntoExistente = Math.max(
+      ...areas.flatMap(area => area.puestosData.flatMap(puesto => puesto.puntos.map(punto => punto.numeroPunto))),
+      0
+    );
+
+    let nuevoNumeroPunto = globalPointCounter;
+
+    const areaEncontrada = areas.find(area => area.idArea.toString() === selectedArea);
+    const puestoEncontrado = areaEncontrada?.puestosData.find(puesto => puesto.nombrePuesto === selectedPuesto);
+    const puntoExistente = puestoEncontrado?.puntos.find(punto => punto.numeroPunto === globalPointCounter);
+
+    if (!puntoExistente) {
+      // 📌 Si no existe, usamos el siguiente número disponible
+      nuevoNumeroPunto = maxPuntoExistente + 1;
+      setTotalPuntos(nuevoNumeroPunto); // ✅ Actualizar la numeración global
+    } else {
+      // 📌 Si ya existe, usamos su número
+      nuevoNumeroPunto = puntoExistente.numeroPunto;
+    }
+
     const newPoint = {
-      numeroPunto: globalPointCounter,
+      numeroPunto: nuevoNumeroPunto,
       identificacion,
       departamento,
       planoTrabajo,
@@ -49,15 +70,13 @@ export function useGuardarPunto({
 
     console.log("📌 Guardando/actualizando punto:", newPoint);
 
-    const updatedAreas = areas.map((area) => {
+    const updatedAreas = areas.map(area => {
       if (area.idArea.toString() === selectedArea) {
         return {
           ...area,
-          puestosData: area.puestosData.map((puesto) => {
+          puestosData: area.puestosData.map(puesto => {
             if (puesto.nombrePuesto === selectedPuesto) {
-              const existingPointIndex = puesto.puntos.findIndex(
-                (punto) => punto.numeroPunto === globalPointCounter
-              );
+              const existingPointIndex = puesto.puntos.findIndex(punto => punto.numeroPunto === nuevoNumeroPunto);
               if (existingPointIndex !== -1) {
                 // ✏️ Editar punto existente
                 const updatedPuntos = [...puesto.puntos];

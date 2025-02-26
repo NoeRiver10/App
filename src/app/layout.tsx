@@ -15,7 +15,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Lictus App",
+  title: "Lictus",
   description: "Soluciones en Seguridad y Salud en el Trabajo",
 };
 

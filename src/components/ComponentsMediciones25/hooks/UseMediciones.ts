@@ -1,9 +1,9 @@
+import { useSearchParams } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 import { useGetAreas } from "./useAreas";
 import { useGuardarPunto } from "./useGuardarPunto";
 import { useNavegacionPuntos } from "./useNavegacionPuntos";
 
-// ✅ Función auxiliar para crear datos de medición
 const createMedicionesData = (tipo: string) =>
   Array.from({ length: tipo === "ARTIFICIAL" ? 1 : 4 }, () => ({
     hora: "",
@@ -14,22 +14,72 @@ const createMedicionesData = (tipo: string) =>
   }));
 
 export function useMediciones() {
-  const { areas, setAreas } = useGetAreas(); // ✅ Obtener `areas` y `setAreas`
+  const searchParams = useSearchParams();
+  const { areas, setAreas } = useGetAreas();
 
-  // 📌 Estados principales
-  const [selectedArea, setSelectedArea] = useState<string>("");
-  const [selectedPuesto, setSelectedPuesto] = useState<string>("");
+  const paramArea = searchParams.get("area");
+  const paramPuesto = searchParams.get("puesto");
+  const paramPunto = searchParams.get("punto");
+
+  const [selectedArea, setSelectedArea] = useState<string>(paramArea || "");
+  const [selectedPuesto, setSelectedPuesto] = useState<string>(paramPuesto || "");
+  const [globalPointCounter, setGlobalPointCounter] = useState<number>(1);
+  const [totalPuntos, setTotalPuntos] = useState<number>(1); // ✅ Se agregó correctamente
+  
   const [identificacion, setIdentificacion] = useState<string>("");
   const [departamento, setDepartamento] = useState<string>("");
   const [planoTrabajo, setPlanoTrabajo] = useState<string>("");
   const [nivelIluminacion, setNivelIluminacion] = useState<number | "">("");
   const [tipoIluminacion, setTipoIluminacion] = useState<string>("");
-  const [globalPointCounter, setGlobalPointCounter] = useState<number>(1);
   const [showResumen, setShowResumen] = useState<boolean>(false);
   const [medicionesData, setMedicionesData] = useState(createMedicionesData(""));
   const [areaIluminada, setAreaIluminada] = useState<string>("");
 
-  // 📌 Hook para manejar guardado de puntos
+  // 📌 Calcula el máximo número de punto globalmente para que la numeración sea consecutiva
+  const calcularMaximoPunto = () => {
+    return (
+      Math.max(
+        ...areas.flatMap(area =>
+          area.puestosData.flatMap(puesto =>
+            puesto.puntos.map(punto => punto.numeroPunto)
+          )
+        ),
+        0
+      ) + 1
+    );
+  };
+
+  // 📌 Cargar datos del punto desde la URL (Resumen de Puntos)
+  useEffect(() => {
+    if (paramArea && paramPuesto && paramPunto) {
+      const areaEncontrada = areas.find(a => a.idArea.toString() === paramArea);
+      if (!areaEncontrada) return;
+
+      const puestoEncontrado = areaEncontrada.puestosData[Number(paramPuesto)];
+      if (!puestoEncontrado) return;
+
+      const puntoEncontrado = puestoEncontrado.puntos.find(
+        punto => punto.numeroPunto === Number(paramPunto)
+      );
+      if (!puntoEncontrado) return;
+
+      setIdentificacion(puntoEncontrado.identificacion);
+      setDepartamento(puntoEncontrado.departamento);
+      setPlanoTrabajo(puntoEncontrado.planoTrabajo);
+      setNivelIluminacion(puntoEncontrado.nivelIluminacion);
+      setTipoIluminacion(puntoEncontrado.tipoIluminacion);
+      setMedicionesData(puntoEncontrado.mediciones);
+      setGlobalPointCounter(puntoEncontrado.numeroPunto);
+    }
+  }, [paramArea, paramPuesto, paramPunto, areas]);
+
+  // 📌 Obtener el nombre del área iluminada
+  useEffect(() => {
+    const area = areas.find(a => a.idArea.toString() === selectedArea);
+    setAreaIluminada(area?.identificacionData?.areaIluminada ?? "Desconocida");
+  }, [selectedArea, areas]);
+
+  // 📌 Guardar datos
   const { handleGuardar } = useGuardarPunto({
     selectedArea,
     selectedPuesto,
@@ -40,35 +90,31 @@ export function useMediciones() {
     tipoIluminacion,
     medicionesData,
     globalPointCounter,
-    setGlobalPointCounter, // ✅ Se pasó correctamente
-    setAreas, // ✅ Ahora también pasamos `setAreas`
+    setTotalPuntos, // ✅ Se pasó correctamente
+    setAreas,
   });
 
-  // 📌 Hook para manejar la navegación de puntos
+  // 📌 Navegación de puntos
   const { navigateToPoint } = useNavegacionPuntos({
-    selectedArea,
-    selectedPuesto,
+    setSelectedArea,
+    setSelectedPuesto,
     globalPointCounter,
     setGlobalPointCounter,
   });
-
-  // 📌 Obtiene los puestos de trabajo dinámicamente según el área seleccionada
+  
+  // 📌 Obtener los puestos de trabajo de un área seleccionada
   const puestosTrabajo = useMemo(() => {
-    const area = areas.find((a) => a.idArea.toString() === selectedArea);
-    return area?.puestosData.map((p) => p.nombrePuesto) || [];
+    const area = areas.find(a => a.idArea.toString() === selectedArea);
+    return area?.puestosData.map(p => p.nombrePuesto) || [];
   }, [selectedArea, areas]);
 
-  // 📌 Obtiene automáticamente el área iluminada al cambiar el área seleccionada
-  useEffect(() => {
-    const area = areas.find((a) => a.idArea.toString() === selectedArea);
-    setAreaIluminada(area?.identificacionData?.areaIluminada ?? "Desconocida");
-  }, [selectedArea, areas]);
-
-  // 📌 Solo cambia el punto cuando se presiona "Agregar Punto"
+  // 📌 Manejar la creación de nuevos puntos con numeración global
   const handleAgregarPunto = () => {
-    setGlobalPointCounter((prev) => prev + 1);
-    setTipoIluminacion(""); // ✅ Solo se reinicia `tipoIluminacion`
-    setMedicionesData(createMedicionesData("")); // ✅ Solo se reinician las mediciones
+    const siguientePunto = calcularMaximoPunto();
+    setGlobalPointCounter(siguientePunto);
+    setTotalPuntos(siguientePunto); // ✅ Asegurar que `totalPuntos` se mantiene actualizado
+    setTipoIluminacion("");
+    setMedicionesData(createMedicionesData(""));
   };
 
   return {
@@ -89,6 +135,8 @@ export function useMediciones() {
     setTipoIluminacion,
     globalPointCounter,
     setGlobalPointCounter,
+    totalPuntos,
+    setTotalPuntos,
     showResumen,
     setShowResumen,
     medicionesData,
@@ -96,7 +144,7 @@ export function useMediciones() {
     areaIluminada,
     puestosTrabajo,
     handleGuardar,
-    handleAgregarPunto, // ✅ Ahora `Agregar Punto` solo cambia aquí
-    navigateToPoint, // ✅ Se agregó la función de navegación
+    handleAgregarPunto,
+    navigateToPoint,
   };
 }

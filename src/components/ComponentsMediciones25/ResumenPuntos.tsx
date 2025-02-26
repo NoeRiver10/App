@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FiEdit, FiTrash2 } from 'react-icons/fi';
+import React, { useState } from "react";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 
 interface Punto {
   numeroPunto: number;
@@ -8,7 +8,7 @@ interface Punto {
   planoTrabajo: string;
   tipoIluminacion: string;
   nivelIluminacion: number | string;
-  mediciones: {
+  mediciones?: {
     hora: string;
     trabajoE1: string;
     trabajoE2: string;
@@ -41,6 +41,8 @@ const ResumenPuntos: React.FC<ResumenPuntosProps> = ({ areas, onEditPunto, onDel
   const [expandedIndex, setExpandedIndex] = useState<{ areaIndex: number; puestoIndex: number; puntoIndex: number } | null>(null);
 
   const toggleExpand = (areaIndex: number, puestoIndex: number, puntoIndex: number) => {
+    console.log("📌 Expandiendo punto:", { areaIndex, puestoIndex, puntoIndex });
+
     if (
       expandedIndex &&
       expandedIndex.areaIndex === areaIndex &&
@@ -52,6 +54,8 @@ const ResumenPuntos: React.FC<ResumenPuntosProps> = ({ areas, onEditPunto, onDel
       setExpandedIndex({ areaIndex, puestoIndex, puntoIndex });
     }
   };
+
+  console.log("🔍 Datos de áreas en ResumenPuntos:", areas);
 
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
@@ -95,6 +99,7 @@ const ResumenPuntos: React.FC<ResumenPuntosProps> = ({ areas, onEditPunto, onDel
                   </div>
                 </div>
               </div>
+
               {expandedIndex?.areaIndex === areaIndex &&
                 expandedIndex.puestoIndex === puestoIndex &&
                 expandedIndex.puntoIndex === puntoIndex && (
@@ -120,9 +125,10 @@ const ResumenPuntos: React.FC<ResumenPuntosProps> = ({ areas, onEditPunto, onDel
                         <strong>Nivel de Iluminación:</strong> {punto.nivelIluminacion}
                       </p>
                     </div>
+
                     <div className="mb-4 overflow-x-auto">
                       <h3 className="text-lg font-semibold text-gray-800 mb-2">Mediciones:</h3>
-                      {punto.mediciones.length > 0 ? (
+                      {Array.isArray(punto.mediciones) && punto.mediciones.length > 0 ? (
                         <table className="min-w-full table-auto border-collapse">
                           <thead>
                             <tr className="bg-gray-200">
@@ -134,19 +140,19 @@ const ResumenPuntos: React.FC<ResumenPuntosProps> = ({ areas, onEditPunto, onDel
                             </tr>
                           </thead>
                           <tbody>
-                            {punto.mediciones.map((medicion, medicionIndex) => (
+                            {(punto.mediciones ?? []).map((medicion, medicionIndex) => (
                               <tr key={medicionIndex}>
-                                <td className="border p-2">{medicion.hora}</td>
-                                <td className="border p-2">{medicion.trabajoE1}</td>
-                                <td className="border p-2">{medicion.trabajoE2}</td>
-                                <td className="border p-2">{medicion.paredesE1}</td>
-                                <td className="border p-2">{medicion.paredesE2}</td>
+                                <td className="border p-2">{medicion.hora || "N/A"}</td>
+                                <td className="border p-2">{medicion.trabajoE1 || "N/A"}</td>
+                                <td className="border p-2">{medicion.trabajoE2 || "N/A"}</td>
+                                <td className="border p-2">{medicion.paredesE1 || "N/A"}</td>
+                                <td className="border p-2">{medicion.paredesE2 || "N/A"}</td>
                               </tr>
                             ))}
                           </tbody>
                         </table>
                       ) : (
-                        <p>No hay mediciones registradas para este punto.</p>
+                        <p className="text-red-500">⚠️ No hay mediciones registradas para este punto.</p>
                       )}
                     </div>
                   </div>
